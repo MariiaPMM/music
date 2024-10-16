@@ -1,0 +1,7 @@
+@mixin hover {
+	@include b-up(lg) {
+		&:hover {
+			@content;
+		}
+	}
+}

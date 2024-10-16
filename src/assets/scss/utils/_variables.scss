@@ -1,0 +1,23 @@
+$black: hsla(0, 0%, 0%, 0.87);
+$bg-dark: hsl(220, 12%, 14%);
+$bg-light: hsl(0, 0%, 96%);
+$bg-card: hsl(225, 6%, 25%);
+$grey: hsla(0, 0%, 41%);
+$light-grey: hsla(0, 0%, 0%, 0.08);
+$white: hsl(0, 0%, 100%);
+$green: hsl(122, 39%, 49%);
+$red: hsl(4, 90%, 58%);
+$dark-blue: hsl(220, 13%, 18%);
+
+$orange: hsl(39, 100%, 50%);
+
+$grid-breakpoints: (
+	xs: 0,
+	sm: 576px,
+	md: 768px,
+	lg: 992px,
+	xl: 1200px,
+	xxl: 1400px
+);
+
+$time: 300ms;
