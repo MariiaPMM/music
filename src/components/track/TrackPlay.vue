@@ -1,44 +1,20 @@
 <template>
   <div class="track">
-    <div
-      class="main-info"
-      v-if="selectedTrack"
-    >
-      <img
-        :src="selectedTrack.album.images[0].url"
-        alt="Album cover"
-      />
+    <div class="main-info" v-if="selectedTrack">
+      <img :src="selectedTrack.imageUrl" alt="Album cover" />
       <div class="track-info">
         <h2>{{ selectedTrack.name }}</h2>
-        <p>{{ selectedTrack.artists[0].name }}</p>
+        <p>{{ selectedTrack.artistName }}</p>
       </div>
       <div class="controls">
-        <button
-          @click="previousTrack"
-          class="previous"
-        >
-          <img
-            src="./track-img/previous.svg"
-            alt="Previous"
-          />
+        <button @click="previousTrack" class="previous">
+          <img src="./track-img/previous.svg" alt="Previous" />
         </button>
-        <button
-          @click="togglePlay"
-          class="start-stop"
-        >
-          <img
-            :src="isPlaying ? './src/assets/images/stop.png' : './src/assets/images/play.png'"
-            alt="Play/Stop"
-          />
+        <button @click="togglePlay" class="start-stop">
+          <img :src="isPlaying ? './src/assets/images/stop.png' : './src/assets/images/play.png'" alt="Play/Stop" />
         </button>
-        <button
-          @click="nextTrack"
-          class="next"
-        >
-          <img
-            src="./track-img/next.png"
-            alt="Next"
-          />
+        <button @click="nextTrack" class="next">
+          <img src="./track-img/next.png" alt="Next" />
         </button>
       </div>
     </div>
@@ -50,28 +26,36 @@
 
 <script>
 import { defineComponent, computed, onMounted, ref } from 'vue';
-import { useTrackStore } from '@/store/trackStore';
+import { usePlaylistStore } from '@/store/playlistStore';
 import { fetchAccessToken } from '@/auth';
 
 export default defineComponent({
   setup() {
-    const trackStore = useTrackStore();
-    const selectedTrack = computed(() => trackStore.currentTrack);
-    const isPlaying = ref(false); // Контроль стану "грай/стоп"
+    const trackStore = usePlaylistStore();
+    const selectedTrack = computed(() => trackStore.tracks[trackStore.currentTrackIndex] || null);
+    const isPlaying = ref(false);
 
     const togglePlay = () => {
-      isPlaying.value = !isPlaying.value; // Зміна стану "грай/стоп"
+      isPlaying.value = !isPlaying.value;
     };
 
     const nextTrack = () => {
-      trackStore.nextTrack();
+      if (trackStore.currentTrackIndex < trackStore.tracks.length - 1) {
+        trackStore.currentTrackIndex++;
+      } else {
+        trackStore.currentTrackIndex = 0; // Цикл на початок
+      }
     };
 
     const previousTrack = () => {
-      trackStore.previousTrack();
+      if (trackStore.currentTrackIndex > 0) {
+        trackStore.currentTrackIndex--;
+      } else {
+        trackStore.currentTrackIndex = trackStore.tracks.length - 1; // Цикл на кінець
+      }
     };
 
-    const fetchTrack = async trackId => {
+    const fetchTrack = async (trackId) => {
       try {
         await trackStore.fetchTrack(trackId);
       } catch (error) {
@@ -85,13 +69,8 @@ export default defineComponent({
           const token = await fetchAccessToken();
           trackStore.setAccessToken(token);
         }
-        const trackIds = [
-          '4VqPOruhp5EdPBeR92t6lQ',
-          '7ouMYWpwJ422jRcDASZB7P',
-          '2takcwOaAZWiXQijPHIx7B'
-        ];
-        trackStore.setTracks(trackIds);
-        await fetchTrack(trackIds[0]);
+        await trackStore.fetchRandomTracks(); // Завантаження треків
+        trackStore.currentTrackIndex = 0; // Встановлюємо перший трек
       } catch (error) {
         console.error('Error during fetching token or track:', error);
       }
@@ -102,11 +81,12 @@ export default defineComponent({
       isPlaying,
       togglePlay,
       nextTrack,
-      previousTrack
+      previousTrack,
     };
-  }
+  },
 });
 </script>
+
 
 <style scoped>
 .track {
@@ -127,39 +107,31 @@ export default defineComponent({
   justify-content: space-between;
   width: 100%;
 }
-
 .track img {
   margin: 0 15px 0 0;
   max-width: 50px;
   max-height: 50px;
   border-radius: 5px;
 }
-
 .track-info {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-
 h2 {
   font-size: 1.5rem;
   color: #ffffff;
 }
-
 p {
   margin: 5px 0;
   font-size: 1.2rem;
   color: #b3b3b3;
 }
-
 .controls {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* @media (min-width:768px) {
-    margin: 0 50px 0 0;
-  } */
 }
 button {
   cursor: pointer;
@@ -169,16 +141,13 @@ button {
   width: 50px;
   height: 50px;
 }
-
 button img {
-width: 40px;
-height: 40px;
+  width: 40px;
+  height: 40px;
 }
-
 button:hover {
   transform: scale(1.05);
 }
-
 button:active {
   transform: scale(0.95);
 }

@@ -1,9 +1,11 @@
+// src/store/playlistStore.js
 import { defineStore } from 'pinia';
 import { fetchAccessToken } from '@/auth';
 
 export const usePlaylistStore = defineStore('playlist', {
   state: () => ({
     tracks: [],
+    playlists: [], // Додаємо поле для плейлистів
     accessToken: null,
   }),
   actions: {
@@ -13,28 +15,74 @@ export const usePlaylistStore = defineStore('playlist', {
     },
     async fetchRandomTracks() {
       try {
-        const response = await fetch('https://api.spotify.com/v1/playlists/{playlist_id}/tracks', {
+        const featuredPlaylistsResponse = await fetch('https://api.spotify.com/v1/browse/featured-playlists', {
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-            'Content-Type': 'application/json',
-          },
+            'Authorization': `Bearer ${this.accessToken}`
+          }
         });
-        const data = await response.json();
 
-        // Оновлюємо інформацію про треки
-        this.tracks = data.items.map(item => ({
-          name: item.track.name, // Назва пісні
-          imageUrl: item.track.album.images[0]?.url, // Картинка альбому
-          artistName: item.track.artists[0]?.name, // Ім'я виконавця
-          artistId: item.track.artists[0]?.id, // ID виконавця
+        const featuredData = await featuredPlaylistsResponse.json();
+        const playlists = featuredData.playlists.items;
+
+        // Вибір випадкового плейлиста
+        const randomPlaylist = playlists[Math.floor(Math.random() * playlists.length)];
+
+        const tracksResponse = await fetch(`https://api.spotify.com/v1/playlists/${randomPlaylist.id}/tracks`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`
+          }
+        });
+
+        const tracksData = await tracksResponse.json();
+        
+        // Отримання треків у правильному форматі
+        this.tracks = tracksData.items.map(item => ({
+          name: item.track.name,
+          artistName: item.track.artists[0].name,
+          imageUrl: item.track.album.images[0].url
         }));
 
-        // Збереження треків у localStorage
-        localStorage.setItem('playlistTracks', JSON.stringify(this.tracks));
+        console.log('Fetched random tracks:', this.tracks);
+
       } catch (error) {
-        console.error('Error fetching tracks:', error);
+        console.error('Error fetching random tracks:', error);
       }
     },
+
+    // Додаємо нову логіку для отримання плейлистів
+    async fetchPlaylists() {
+      try {
+        const response = await fetch('https://api.spotify.com/v1/browse/featured-playlists', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`
+          }
+        });
+    
+        const data = await response.json();
+    
+        // Перевіряємо, чи існують плейлисти
+        if (data.playlists && data.playlists.items) {
+          this.playlists = data.playlists.items.map(playlist => ({
+            id: playlist.id,
+            name: playlist.name,
+            imageUrl: playlist.images[0]?.url, // Перевіряємо наявність зображень
+            // Перевіряємо наявність треків і їхніх артистів
+            artists: playlist.tracks?.items?.map(item => item.track?.artists[0]?.name) || []
+          }));
+        } else {
+          console.error('No playlists found');
+        }
+    
+        console.log('Fetched playlists:', this.playlists);
+    
+      } catch (error) {
+        console.error('Error fetching playlists:', error);
+      }
+    }
+    
+    
   },
 });
