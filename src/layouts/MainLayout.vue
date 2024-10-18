@@ -1,6 +1,6 @@
 <template>
 	<div class="page">
-		<TheNavigation :is-open="isNavOpen"/>
+		<TheNavigation :is-open="isNavOpen" />
 		<div class="page__content">
 			<TheHeader @on-toggle="isNavOpen = !isNavOpen" />
 			<main class="page__main">
@@ -14,7 +14,7 @@
 				</RouterView>
 			</main>
 			<InitializeToken @token-initialized="onTokenInitialized" />
-			<HomePage/>
+			<HomePage />
 			<TheFooter />
 		</div>
 	</div>
@@ -63,14 +63,16 @@ export default {
 
 <style lang="scss" scoped>
 .page {
-	background: black;
+	background: #121212;
 	display: flex;
 	align-items: flex-start;
 	height: 100%;
 	overflow: hidden;
 	padding: 5px;
 	width: 100%;
-	
+	@media (min-width: 678px) {
+		background: black;
+	}
 	&__content {
 		display: flex;
 		flex-direction: column;
@@ -78,8 +80,6 @@ export default {
 		height: 100%;
 		overflow: hidden;
 	}
-	
-
 
 	&__main {
 		flex: 1 1 auto;

@@ -212,7 +212,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	position: relative;
-	padding: 0 20px 150px;
+	padding: 0 15px 150px;
 	box-sizing: border-box;
 	margin: 55px 20px 0px;
 	border-radius: 10px;

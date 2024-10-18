@@ -9,6 +9,7 @@ export const usePlaylistStore = defineStore('playlist', {
     accessToken: null,
   }),
   actions: {
+
     setAccessToken(token) {
       this.accessToken = token;
       localStorage.setItem('spotifyAccessToken', token);

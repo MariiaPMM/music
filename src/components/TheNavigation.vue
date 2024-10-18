@@ -101,7 +101,7 @@ export default defineComponent({
 
 .header {
 	flex-shrink: 0; /* Не дозволяємо шапці зменшуватися */
-	width: 270px;
+	width: 350px;
 	background-color: #121212;
 	padding: 20px;
 	border-radius: 10px;
