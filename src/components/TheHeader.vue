@@ -228,7 +228,7 @@ export default {
 	height: 85%;
 	width: 90%;
 	@media (min-width: 678px) {
-		width: 70%;
+		width: 62%;
 	}
 
 	ul {
@@ -283,7 +283,7 @@ export default {
 	position: sticky;
 	top: 0;
 	background-color: rgba(31, 31, 31, 0.8); 
-	background-image: url(''); /* Якщо потрібно, можна додати фонове зображення */
+	background-image: url(''); 
 	background-size: cover; 
 	background-position: center; 
 	padding: 20px;
@@ -291,10 +291,11 @@ export default {
 	color: #fff;
 	text-align: center;
 	z-index: 1;
+	height: 300px;
 
 	h2 {
 		margin: 80px  0 0px;
-		font-size: 6.5rem;
+		font-size: 4.5rem;
 		font-weight: 900;
 		font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 		display: flex;
