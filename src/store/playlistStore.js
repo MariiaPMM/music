@@ -7,9 +7,15 @@ export const usePlaylistStore = defineStore('playlist', {
     tracks: [],
     playlists: [], // Додаємо поле для плейлистів
     accessToken: null,
+    currentTrackIndex: 0,
+    selectedTrack: null
   }),
   actions: {
 
+    
+    setSelectedTrack(track) {
+      this.selectedTrack = track; // Метод для встановлення обраного треку
+    },
     setAccessToken(token) {
       this.accessToken = token;
       localStorage.setItem('spotifyAccessToken', token);
@@ -40,6 +46,7 @@ export const usePlaylistStore = defineStore('playlist', {
         
         // Отримання треків у правильному форматі
         this.tracks = tracksData.items.map(item => ({
+          id: item.track.id, // Додайте ID треку
           name: item.track.name,
           artistName: item.track.artists[0].name,
           imageUrl: item.track.album.images[0].url
@@ -51,7 +58,6 @@ export const usePlaylistStore = defineStore('playlist', {
         console.error('Error fetching random tracks:', error);
       }
     },
-
     // Додаємо нову логіку для отримання плейлистів
     async fetchPlaylists() {
       try {
@@ -83,7 +89,5 @@ export const usePlaylistStore = defineStore('playlist', {
         console.error('Error fetching playlists:', error);
       }
     }
-    
-    
   },
-});
+});  

@@ -12,24 +12,19 @@ const routes = [
 				component: () => import('@/pages/HomePage.vue')
 			}
 		]
+	},
+	{
+		path: '/',
+		component: () => import('@/layouts/AuthLayout.vue'),
+		children: [
+			{
+				path: '',
+				name: 'UserProfile',
+				component: () => import('@/pages/UserProfile.vue')
+			}
+		]
 	}
-	// Ви можете розкоментувати ці шляхи, якщо потрібно додати маршрути для аутентифікації
-	// {
-	//   path: '/auth',
-	//   component: () => import('@/layouts/AuthLayout.vue'),
-	//   children: [
-	//     {
-	//       path: 'login',
-	//       name: 'LoginPage',
-	//       component: () => import('@/pages/auth/LoginPage.vue')
-	//     },
-	//     {
-	//       path: 'registration',
-	//       name: 'RegistrationPage',
-	//       component: () => import('@/pages/auth/RegistrationPage.vue')
-	//     }
-	//   ]
-	// }
+	
 ];
 
 // Створюємо екземпляр роутера

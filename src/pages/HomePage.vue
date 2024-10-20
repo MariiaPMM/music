@@ -7,6 +7,7 @@
 
 		<!-- TrackPlay має показувати тільки один трек -->
 		<TrackPlay @select-track="selectTrack" />
+		<TheFooter/>
 	</div>
 </template>
 
@@ -42,7 +43,7 @@ export default defineComponent({
 		};
 
 		return {
-			artists, // Зберігаємо обчислені артисти
+			artists, 
 			selectTrack
 		};
 	}
@@ -67,6 +68,6 @@ export default defineComponent({
 	display: flex;
 	flex-direction: row;
 	overflow-x: auto;
-	/* gap: 10px; */
+	
 }
 </style>

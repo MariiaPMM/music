@@ -1,18 +1,9 @@
 <template>
 	<header class="header">
-		<a
-			class="header__logo"
-			href="#"
-		>
-			<img
-				src="../assets/images/logo.png"
-				alt="logo"
-			/>
+		<a class="header__logo" href="#">
+			<img src="../assets/images/logo.png" alt="logo" />
 		</a>
-		<div
-			class="header__search-container"
-			:class="{ 'show-search': showSearchInput }"
-		>
+		<div class="header__search-container" :class="{ 'show-search': showSearchInput }">
 			<input
 				type="text"
 				placeholder="Що хочете ввімкнути?"
@@ -20,49 +11,33 @@
 				@keydown.enter="handleSearch"
 			/>
 			<button @click="toggleSearch">
-				<img
-					src="../assets/images/search.png"
-					alt="search"
-				/>
+				<img src="../assets/images/search.png" alt="search" />
 			</button>
 		</div>
+
+		<!-- Кружечок для профілю -->
+		<div class="header__profile" @click="toggleProfile">
+			<img v-if="userAvatar" :src="userAvatar" alt="Profile" />
+			<img v-else src="../assets/images/user.png" alt="Default Profile" />
+		</div>
+		<!-- Форма профілю -->
+		<UserProfile v-if="showProfile" @close="toggleProfile" @updateAvatar="updateAvatar" />
 	</header>
 
 	<!-- Відображення результатів пошуку -->
-	<div
-		v-if="searchResults.length > 0"
-		class="search-results"
-	>
-		<button
-			class="close-btn"
-			@click="closeResults"
-		>
-			✖
-		</button>
+	<div v-if="searchResults.length > 0" class="search-results">
+		<button class="close-btn" @click="closeResults"> ✖</button>
 
 		<!-- Відображення інформації про вибраний трек -->
-		<div
-			v-if="selectedTrack"
-			class="track-info"
-		>
+		<div v-if="selectedTrack" class="track-info">
 			<h2>{{ selectedTrack.name }}</h2>
 			<p>{{ selectedTrack.artist }}</p>
-			<img
-				:src="selectedTrack.imageUrl"
-				alt="Selected track image"
-			/>
+			<img :src="selectedTrack.imageUrl" alt="Selected track image" />
 		</div>
 
 		<ul>
-			<li
-				v-for="track in searchResults"
-				:key="track.id"
-				@click="selectTrack(track)"
-			>
-				<img
-					:src="track.imageUrl"
-					alt="Track image"
-				/>
+			<li v-for="track in searchResults" :key="track.id" @click="selectTrack(track)">
+				<img :src="track.imageUrl" alt="Track image" />
 				<div>
 					<h3>{{ track.name }}</h3>
 					<p>{{ track.artist }}</p>
@@ -73,19 +48,32 @@
 </template>
 
 <script>
+import UserProfile from '../pages/UserProfile.vue';
 import { fetchAccessToken } from '@/auth';
 
 export default {
 	name: 'TheHeader',
+	components: {
+		UserProfile,
+	},
 	data() {
 		return {
 			searchQuery: '',
 			searchResults: [],
 			selectedTrack: null,
-			showSearchInput: false // Додано змінну для контролю відображення інпуту
+			showSearchInput: false,
+			showProfile: false,
+			userAvatar: localStorage.getItem('userAvatar'),
 		};
 	},
 	methods: {
+		updateAvatar(newAvatar) {
+        this.userAvatar = newAvatar;
+        localStorage.setItem('userAvatar', newAvatar); 
+    },
+		toggleProfile() {
+			this.showProfile = !this.showProfile;
+		},
 		async handleSearch() {
 			try {
 				const results = await this.searchTracks(this.searchQuery);
@@ -96,12 +84,13 @@ export default {
 		},
 		async searchTracks(query) {
 			const accessToken = await fetchAccessToken();
+
 			const response = await fetch(
 				`https://api.spotify.com/v1/search?type=track&q=${encodeURIComponent(query)}`,
 				{
 					headers: {
-						Authorization: `Bearer ${accessToken}`
-					}
+						Authorization: `Bearer ${accessToken}`,
+					},
 				}
 			);
 
@@ -114,7 +103,7 @@ export default {
 				id: track.id,
 				name: track.name,
 				artist: track.artists.map(artist => artist.name).join(', '),
-				imageUrl: track.album.images[0]?.url
+				imageUrl: track.album.images[0]?.url,
 			}));
 		},
 		closeResults() {
@@ -134,10 +123,11 @@ export default {
 			} else {
 				this.handleSearch();
 			}
-		}
-	}
+		},
+	},
 };
 </script>
+
 
 <style lang="scss" scoped>
 .header {
@@ -178,12 +168,10 @@ export default {
 			padding-left: 40px;
 			font-weight: 700;
 			color: #fff;
-			display: none; /* Сховано за замовчуванням */
+			display: none; 
 
 			&:focus {
 				border: 2px solid #fff;
-				border-radius: 500px;
-				padding-left: 40px;
 			}
 		}
 
@@ -201,17 +189,36 @@ export default {
 		}
 
 		&.show-search input {
-			display: block; /* Відображення при натисканні на кнопку */
+			display: block; 
 		}
 
 		@media (min-width: 678px) {
 			input {
-				display: block; /* Постійне відображення інпуту на великих екранах */
+				display: block; 
 				width: 350px;
 			}
 		}
 	}
+
+	
+	&__profile {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		overflow: hidden;
+		cursor: pointer;
+		margin-right: 20px;
+		background: #1f1f1f;
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
 }
+
+
 .search-results {
 	position: absolute;
 	top: 60px;
@@ -227,9 +234,42 @@ export default {
 	border-radius: 10px;
 	height: 85%;
 	width: 90%;
-	@media (min-width: 678px) {
-		width: 62%;
+	flex-grow: 1; 
+	&::-webkit-scrollbar {
+		width: 10px;
 	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: #888; 
+		border-radius: 10px;
+	}
+
+	&::-webkit-scrollbar-thumb:hover {
+		background-color: #555; 
+	}
+
+	&::-webkit-scrollbar-track {
+		background-color: #222; 
+	}
+	@media (min-width: 678px) {
+		width: 75%;
+	}
+	.header__profile {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	overflow: hidden;
+	cursor: pointer;
+	margin-right: 20px;
+	background: #1f1f1f;
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
 
 	ul {
 		list-style: none;
@@ -320,13 +360,22 @@ export default {
 	.close-btn {
 		background: transparent;
 		border: none;
-		color: rgb(0, 0, 0);
-		font-size: 30px;
+		color: rgb(255, 0, 0);
+		// box-shadow: 0px 0px 15px 5px rgb(255, 255, 255);
+		background: #fff;
+		border-radius: 50%;
+		font-size: 20px;
 		cursor: pointer;
 		position: fixed;
 		right: 20px;
 		top: 70px;
 		z-index: 30000;
+		transition: all 1s ease;
+		&:hover{
+			background: #ff0000;
+			color: #fff;
+		}
 	}
+	
 }
 </style>

@@ -117,13 +117,13 @@ export default defineComponent({
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	z-index: 10000000;
+	z-index: 1000000000;
 	padding: 10px 20px;
 	height: 80px;
 	display: flex;
 	align-items: center;
 	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-	border-radius: 10px;
+	overflow: hidden;
 	background-color: rgb(86, 84, 84);
 	font-size: 12px;
   margin: 0 0 5px 0px;
@@ -131,6 +131,7 @@ export default defineComponent({
 		background-color: black;
 		font-size: 16px;
     margin: 0 0 0 0;
+  
 	}
 }
 .main-info {
@@ -153,11 +154,18 @@ export default defineComponent({
 h2 {
 	font-size: 1.5rem;
 	color: #ffffff;
+  @media (min-width:678px) {
+    font-size: 1.2rem;
+  }
 }
 p {
 	margin: 5px 0;
 	font-size: 1.2rem;
 	color: #b3b3b3;
+  @media (min-width:678px) {
+    font-size: 0.8rem;
+    margin: 0px 0;
+  }
 }
 .controls {
 	display: flex;

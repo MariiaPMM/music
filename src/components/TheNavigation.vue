@@ -53,9 +53,9 @@ export default defineComponent({
 	setup() {
 		const artistsStore = useArtistsStore();
 
-		const artists = computed(() => artistsStore.artists); // Повертаємо артистів
-		const loading = ref(true); // Статус завантаження
-		const error = ref(null); // Повідомлення про помилку
+		const artists = computed(() => artistsStore.artists); 
+		const loading = ref(true); 
+		const error = ref(null); 
 
 		onMounted(async () => {
 			try {
@@ -72,7 +72,7 @@ export default defineComponent({
 				console.error('Error during fetching token or artists:', err);
 				error.value = 'Failed to load artists. Please try again later.';
 			} finally {
-				loading.value = false; // Завантаження завершено
+				loading.value = false; 
 			}
 		});
 
@@ -100,7 +100,7 @@ export default defineComponent({
 }
 
 .header {
-	flex-shrink: 0; /* Не дозволяємо шапці зменшуватися */
+	flex-shrink: 0; 
 	width: 350px;
 	background-color: #121212;
 	padding: 20px;
@@ -116,35 +116,36 @@ export default defineComponent({
 	}
 
 	.error {
-		color: red; /* Колір помилки */
-		margin-top: 10px; /* Відступ для повідомлення про помилку */
+		color: red; 
+		margin-top: 10px; 
 	}
 }
 
 .artist-list {
-	overflow-y: auto; /* Додаємо прокрутку по вертикалі для списку артистів */
-	flex-grow: 1; /* Дозволяємо списку артистів займати доступний простір */
+	overflow-y: auto; 
+	flex-grow: 1; 
 	
-	/* Кастомізація скролу */
+
 	&::-webkit-scrollbar {
 		width: 10px;
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background-color: #888; /* Колір смуги прокрутки */
-		border-radius: 10px; /* Заокруглені краї */
+		background-color: #888; 
+		border-radius: 10px; 
 	}
 
 	&::-webkit-scrollbar-thumb:hover {
-		background-color: #555; /* Колір смуги при ховері */
+		background-color: #555; 
 	}
 
 	&::-webkit-scrollbar-track {
-		background-color: #222; /* Колір фону смуги прокрутки */
+		background-color: #222; 
 	}
 }
 
 .artist {
+
 	display: flex;
 	align-items: center;
 	margin: 0 10px 10px;
@@ -152,6 +153,7 @@ export default defineComponent({
 	&:hover {
 		background-color: #282828;
 		border-radius: 5px;
+		cursor: pointer;
 	}
 }
 
