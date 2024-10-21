@@ -2,32 +2,18 @@
 	<div class="container">
 		<div class="header">
 			<h1 class="header-title">Моя медіатека</h1>
-
-			<button class="title__button">
-				<img
-					src="../assets/images/plus.png"
-					alt="plus"
-				/>
-			</button>
-			<button class="title__button">
-				<img
-					src="../assets/images/right-arrow.png"
-					alt="arrow"
-				/>
-			</button>
 			<div v-if="loading"></div>
-			<div
-				v-if="error"
-				class="error"
-			>
+			<div v-if="error" class="error">
 				{{ error }}
 			</div>
 		</div>
+
 		<div class="artist-list">
 			<div
 				v-for="artist in artists"
 				:key="artist.id"
 				class="artist"
+				@click="selectArtist(artist)"
 			>
 				<img
 					:src="artist.imageUrl"
@@ -50,12 +36,19 @@ import { fetchAccessToken } from '../auth';
 
 export default defineComponent({
 	name: 'TheNavigation',
-	setup() {
+	props: {
+		onArtistSelect: Function // Передаємо подію як пропс
+	},
+	setup(props) {
 		const artistsStore = useArtistsStore();
+		const artists = computed(() => artistsStore.artists);
+		const loading = ref(true);
+		const error = ref(null);
 
-		const artists = computed(() => artistsStore.artists); 
-		const loading = ref(true); 
-		const error = ref(null); 
+		// Функція для вибору артиста
+		const selectArtist = artist => {
+			props.onArtistSelect(artist); // Викликаємо метод з пропсів для передачі артиста
+		};
 
 		onMounted(async () => {
 			try {
@@ -64,7 +57,6 @@ export default defineComponent({
 					artistsStore.setAccessToken(token);
 				}
 
-				// Викликаємо fetchRandomArtists тільки якщо токен встановлений
 				if (artistsStore.accessToken) {
 					await artistsStore.fetchRandomArtists();
 				}
@@ -72,18 +64,21 @@ export default defineComponent({
 				console.error('Error during fetching token or artists:', err);
 				error.value = 'Failed to load artists. Please try again later.';
 			} finally {
-				loading.value = false; 
+				loading.value = false;
 			}
 		});
 
 		return {
 			artists,
 			loading,
-			error
+			error,
+			selectArtist
 		};
 	}
 });
 </script>
+
+
 <style lang="scss" scoped>
 .container {
 	display: none;
@@ -168,15 +163,15 @@ export default defineComponent({
 }
 
 .artist-image {
-	width: 50px; /* Ширина зображення артиста */
-	height: 50px; /* Висота зображення артиста */
-	border-radius: 50%; /* Кругла форма зображення */
-	margin-right: 10px; /* Відступ праворуч від зображення */
+	width: 50px; 
+	height: 50px; 
+	border-radius: 50%; 
+	margin-right: 10px; 
 }
 
 .artist-name {
-	color: #ffffff; /* Колір тексту */
+	color: #ffffff; 
 	font-weight: 700;
-	font-size: 14px; /* Розмір шрифту */
+	font-size: 14px;
 }
 </style>

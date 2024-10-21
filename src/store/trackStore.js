@@ -43,6 +43,10 @@ export const useTrackStore = defineStore('track', {
       // Повернення до попереднього треку
       this.currentTrackIndex = (this.currentTrackIndex - 1 + this.tracks.length) % this.tracks.length; // Зменшуємо індекс
       this.fetchTrack(this.tracks[this.currentTrackIndex]); // Завантажуємо трек
-    }
+    },
+    setCurrentTrack(track) {
+			this.currentTrack = track;
+		},
+
   }
 });

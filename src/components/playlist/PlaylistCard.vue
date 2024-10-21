@@ -9,6 +9,20 @@
 				Музика
 			</button>
 		</div>
+
+		<!-- Секція з інформацією про артиста -->
+		<div
+			v-if="selectedArtist"
+			class="artist-info"
+		>
+			<img
+				:src="selectedArtist.imageUrl"
+				alt="Artist Cover"
+				class="artist-info__image"
+			/>
+			<h2 class="artist-info__name">{{ selectedArtist.name }}</h2>
+		</div>
+
 		<div class="playlist__info">
 			<!-- Секція з артистами -->
 			<div class="artists-section">
@@ -22,6 +36,7 @@
 						class="artist-card"
 						v-for="artist in limitedArtists"
 						:key="artist.id"
+						@click="selectArtist(artist)"
 					>
 						<img
 							:src="artist.imageUrl"
@@ -38,20 +53,9 @@
 				<a>Рекомендації для тебе</a>
 				<div v-if="tracksLoading">Завантаження треків...</div>
 				<div v-else-if="tracksError">{{ tracksError }}</div>
-				<div
-					class="tracks-list"
-					v-else
-				>
-					<div
-						class="track-card"
-						v-for="track in tracks"
-						:key="track.name"
-					>
-						<img
-							:src="track.imageUrl"
-							alt="Track Cover"
-							class="track__image"
-						/>
+				<div class="tracks-list" v-else>
+					<div class="track-card" v-for="track in tracks" :key="track.id" @click="playTrack(track)">
+						<img :src="track.imageUrl" alt="Track Cover" class="track__image" />
 						<p class="track__name">{{ track.name }}</p>
 						<p class="track__artist">{{ track.artistName }}</p>
 					</div>
@@ -78,7 +82,6 @@
 							<p class="playlist__name">{{ playlist.name }}</p>
 							<p class="playlist__artists">
 								{{ playlist.artists.slice(0, 2).join(', ') }}
-								<!-- Виводимо перші два артисти -->
 							</p>
 						</div>
 					</div>
@@ -86,6 +89,7 @@
 			</div>
 		</div>
 	</div>
+	<TrackPlay :selectedTrack="selectedTrack" />
 </template>
 
 <script>
@@ -94,24 +98,34 @@ import { useArtistsStore } from '@/store/artistStore';
 import { usePlaylistStore } from '@/store/playlistStore';
 import { fetchAccessToken } from '@/auth';
 
+import TrackPlay from '@/components/track/TrackPlay.vue';
+
 export default {
 	name: 'PlaylistCard',
+	components: {
+		TrackPlay // Регіструємо компонент
+	},
+
 	setup() {
 		const artistsStore = useArtistsStore();
 		const playlistStore = usePlaylistStore();
 
 		const artists = computed(() => artistsStore.artists);
 		const tracks = computed(() => playlistStore.tracks);
-		const playlists = computed(() => playlistStore.playlists); // Додаємо для плейлистів
+		const playlists = computed(() => playlistStore.playlists);
+		const selectedTrack = computed(() => playlistStore.tracks[playlistStore.currentTrackIndex]);
+		
 
 		const artistsLoading = ref(true);
 		const artistsError = ref(null);
 		const tracksLoading = ref(true);
 		const tracksError = ref(null);
-		const playlistsLoading = ref(true); // Для плейлистів
-		const playlistsError = ref(null); // Для плейлистів
+		const playlistsLoading = ref(true);
+		const playlistsError = ref(null);
 
 		const isMusicActive = ref(false);
+		const selectedArtist = ref(null);
+		const selectedArtistSongs = ref([]);
 
 		const toggleMusic = () => {
 			isMusicActive.value = !isMusicActive.value;
@@ -160,7 +174,6 @@ export default {
 			}
 		};
 
-		// Додаємо логіку для завантаження плейлистів
 		const loadPlaylists = async () => {
 			playlistsLoading.value = true;
 			try {
@@ -170,40 +183,88 @@ export default {
 				}
 
 				if (playlistStore.accessToken) {
-					await playlistStore.fetchPlaylists(); // Метод для отримання плейлистів
+					await playlistStore.fetchPlaylists();
 				}
 			} catch (err) {
 				console.error('Помилка при отриманні плейлистів:', err);
-				playlistsError.value = 'Не вдалося завантажити плейлисти. Спробуйте ще раз пізніше.';
+				playlistsError.value = 'Не вдалося завантажити плейлісти. Спробуйте ще раз пізніше.';
 			} finally {
 				playlistsLoading.value = false;
 			}
 		};
 
+		const selectArtist = artist => {
+			selectedArtist.value = artist;
+			selectedArtistSongs.value = [];
+			loadArtistSongs(artist.id);
+		};
+
+		const playTrack = track => {
+			playlistStore.currentTrackIndex = tracks.value.indexOf(track);
+		};
+
 		onMounted(() => {
 			loadArtists();
 			loadTracks();
-			loadPlaylists(); // Викликаємо завантаження плейлистів
+			loadPlaylists();
 		});
 
 		return {
-			isMusicActive,
-			toggleMusic,
-			limitedArtists,
+			artists,
+			tracks,
+			playlists,
 			artistsLoading,
 			artistsError,
 			tracksLoading,
 			tracksError,
-			tracks,
-			playlists, // Додаємо плейлисти
-			playlistsLoading, // Стан завантаження для плейлистів
-			playlistsError // Помилка для плейлистів
+			playlistsLoading,
+			playlistsError,
+			isMusicActive,
+			toggleMusic,
+			limitedArtists,
+			selectArtist,
+			selectedArtist,
+			selectedArtistSongs,
+			selectedTrack,
+			playTrack,
 		};
 	}
 };
 </script>
 
 <style scoped>
+.artist-info {
+	/* background: #1d1d1d; */
+	color: white;
+	padding: 15px;
+	border-radius: 10px;
+	margin-bottom: 20px;
+	text-align: center;
+	display: flex;
+	align-items: center;
+}
+
+.artist-info__image {
+	width: 150px;
+height: 150px;
+	border-radius: 50%;
+	object-fit: cover;
+	margin: 0 20px 10px 0;
+	@media (min-width:678px) {
+		width: 200px;
+	height: 200px;
+	margin: 0 40px 10px 0;
+	}
+}
+
+.artist-info__name {
+	font-weight: 900;
+	font-size: 32px;
+	@media (min-width: 678px) {
+		font-size: 64px;
+	}
+}
+
 .playlist {
 	background: #121212;
 	color: aliceblue;
@@ -365,25 +426,26 @@ export default {
 	margin-top: 20px;
 }
 .playlists-list {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    gap: 10px;
-    padding: 10px 0;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    border-radius: 10px;
-    width: 100%; 
-    max-width: 1200px; 
-    margin: 0 auto; 
-  height: 200px;
-}.playlist-card {
-    flex: 0 0 150px; 
-    display: flex;
-    flex-direction: column;
-    border-radius: 4px;
-    text-align: center;
-    padding: 10px;
+	display: flex;
+	overflow-x: auto;
+	scroll-behavior: smooth;
+	gap: 10px;
+	padding: 10px 0;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+	border-radius: 10px;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	height: 200px;
+}
+.playlist-card {
+	flex: 0 0 150px;
+	display: flex;
+	flex-direction: column;
+	border-radius: 4px;
+	text-align: center;
+	padding: 10px;
 }
 
 .playlist__image {
@@ -392,7 +454,6 @@ export default {
 
 	margin-bottom: 10px;
 }
-
 
 .playlist__name {
 	color: white;

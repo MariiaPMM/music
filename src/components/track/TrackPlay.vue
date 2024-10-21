@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, onMounted, ref } from 'vue';
+import { defineComponent, computed, onMounted, ref, watch } from 'vue';
 import { usePlaylistStore } from '@/store/playlistStore';
 import { fetchAccessToken } from '@/auth';
 
@@ -58,9 +58,18 @@ export default defineComponent({
 		const trackStore = usePlaylistStore();
 		const selectedTrack = computed(() => trackStore.tracks[trackStore.currentTrackIndex] || null);
 		const isPlaying = ref(false);
+		let audio = null; // Додали змінну для аудіо
 
 		const togglePlay = () => {
-			isPlaying.value = !isPlaying.value;
+			if (selectedTrack.value) {
+				if (isPlaying.value) {
+					audio.pause(); // Зупинка відтворення
+				} else {
+					audio = new Audio(selectedTrack.value.audioUrl); // Створення нового об'єкта Audio
+					audio.play(); // Відтворення треку
+				}
+				isPlaying.value = !isPlaying.value; // Перемикаємо стан відтворення
+			}
 		};
 
 		const nextTrack = () => {
@@ -69,6 +78,10 @@ export default defineComponent({
 			} else {
 				trackStore.currentTrackIndex = 0; // Цикл на початок
 			}
+			if (isPlaying.value) {
+				audio.pause(); // Зупинка попереднього треку
+				togglePlay(); // Запуск нового треку
+			}
 		};
 
 		const previousTrack = () => {
@@ -76,6 +89,10 @@ export default defineComponent({
 				trackStore.currentTrackIndex--;
 			} else {
 				trackStore.currentTrackIndex = trackStore.tracks.length - 1; // Цикл на кінець
+			}
+			if (isPlaying.value) {
+				audio.pause(); // Зупинка попереднього треку
+				togglePlay(); // Запуск нового треку
 			}
 		};
 
@@ -100,6 +117,15 @@ export default defineComponent({
 			}
 		});
 
+		// Слідкуємо за змінами в selectedTrack
+		watch(selectedTrack, (newTrack) => {
+			if (isPlaying.value && audio) {
+				audio.pause(); // Зупиняємо поточний трек, якщо він відтворюється
+				audio = new Audio(newTrack.audioUrl); // Завантажуємо новий трек
+				audio.play(); // Відтворюємо новий трек
+			}
+		});
+
 		return {
 			selectedTrack,
 			isPlaying,
@@ -110,6 +136,8 @@ export default defineComponent({
 	}
 });
 </script>
+
+
 
 <style scoped>
 .track {
