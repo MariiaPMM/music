@@ -257,12 +257,12 @@ export default {
 }
 
 .playlist::-webkit-scrollbar {
-	width: 8px;
+	width: 4px;
 }
 
 .playlist::-webkit-scrollbar-thumb {
 	background-color: #888;
-	border-radius: 10px;
+	border-radius: 5px;
 }
 
 .playlist::-webkit-scrollbar-thumb:hover {

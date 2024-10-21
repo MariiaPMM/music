@@ -1,43 +1,93 @@
 <template>
 	<header class="header">
-		<a class="header__logo" href="#">
-			<img src="../assets/images/logo.png" alt="logo" />
-		</a>
-		<div class="header__search-container" :class="{ 'show-search': showSearchInput }">
-			<input
-				type="text"
-				placeholder="Що хочете ввімкнути?"
-				v-model="searchQuery"
-				@keydown.enter="handleSearch"
+		<a
+			class="header__logo"
+			href="#"
+		>
+			<img
+				src="../assets/images/logo.png"
+				alt="logo"
 			/>
-			<button @click="toggleSearch">
-				<img src="../assets/images/search.png" alt="search" />
-			</button>
-		</div>
+		</a>
+		<div class="header__info">
+			<div
+				class="header__search-container"
+				:class="{ 'show-search': showSearchInput }"
+			>
+				<input
+					type="text"
+					placeholder="Що хочете ввімкнути?"
+					v-model="searchQuery"
+					@keydown.enter="handleSearch"
+				/>
+				<button @click="toggleSearch">
+					<img
+						src="../assets/images/search.png"
+						alt="search"
+					/>
+				</button>
+			</div>
 
-		<!-- Кружечок для профілю -->
-		<div class="header__profile" @click="toggleProfile">
-			<img v-if="userAvatar" :src="userAvatar" alt="Profile" />
-			<img v-else src="../assets/images/user.png" alt="Default Profile" />
+			<!-- Кружечок для профілю -->
+			<div
+				class="header__profile"
+				@click="toggleProfile"
+			>
+				<img
+					v-if="userAvatar"
+					:src="userAvatar"
+					alt="Profile"
+				/>
+				<img
+					v-else
+					src="../assets/images/user.png"
+					alt="Default Profile"
+				/>
+			</div>
 		</div>
 		<!-- Форма профілю -->
-		<UserProfile v-if="showProfile" @close="toggleProfile" @updateAvatar="updateAvatar" />
+		<UserProfile
+			v-if="showProfile"
+			@close="toggleProfile"
+			@updateAvatar="updateAvatar"
+		/>
 	</header>
 
 	<!-- Відображення результатів пошуку -->
-	<div v-if="searchResults.length > 0" class="search-results">
-		<button class="close-btn" @click="closeResults"> ✖</button>
+	<div
+		v-if="searchResults.length > 0"
+		class="search-results"
+	>
+		<button
+			class="close-btn"
+			@click="closeResults"
+		>
+			✖
+		</button>
 
 		<!-- Відображення інформації про вибраний трек -->
-		<div v-if="selectedTrack" class="track-info">
+		<div
+			v-if="selectedTrack"
+			class="track-info"
+		>
 			<h2>{{ selectedTrack.name }}</h2>
 			<p>{{ selectedTrack.artist }}</p>
-			<img :src="selectedTrack.imageUrl" alt="Selected track image" />
+			<img
+				:src="selectedTrack.imageUrl"
+				alt="Selected track image"
+			/>
 		</div>
 
 		<ul>
-			<li v-for="track in searchResults" :key="track.id" @click="selectTrack(track)">
-				<img :src="track.imageUrl" alt="Track image" />
+			<li
+				v-for="track in searchResults"
+				:key="track.id"
+				@click="selectTrack(track)"
+			>
+				<img
+					:src="track.imageUrl"
+					alt="Track image"
+				/>
 				<div>
 					<h3>{{ track.name }}</h3>
 					<p>{{ track.artist }}</p>
@@ -54,7 +104,7 @@ import { fetchAccessToken } from '@/auth';
 export default {
 	name: 'TheHeader',
 	components: {
-		UserProfile,
+		UserProfile
 	},
 	data() {
 		return {
@@ -63,14 +113,14 @@ export default {
 			selectedTrack: null,
 			showSearchInput: false,
 			showProfile: false,
-			userAvatar: localStorage.getItem('userAvatar'),
+			userAvatar: localStorage.getItem('userAvatar')
 		};
 	},
 	methods: {
 		updateAvatar(newAvatar) {
-        this.userAvatar = newAvatar;
-        localStorage.setItem('userAvatar', newAvatar); 
-    },
+			this.userAvatar = newAvatar;
+			localStorage.setItem('userAvatar', newAvatar);
+		},
 		toggleProfile() {
 			this.showProfile = !this.showProfile;
 		},
@@ -89,8 +139,8 @@ export default {
 				`https://api.spotify.com/v1/search?type=track&q=${encodeURIComponent(query)}`,
 				{
 					headers: {
-						Authorization: `Bearer ${accessToken}`,
-					},
+						Authorization: `Bearer ${accessToken}`
+					}
 				}
 			);
 
@@ -103,7 +153,7 @@ export default {
 				id: track.id,
 				name: track.name,
 				artist: track.artists.map(artist => artist.name).join(', '),
-				imageUrl: track.album.images[0]?.url,
+				imageUrl: track.album.images[0]?.url
 			}));
 		},
 		closeResults() {
@@ -123,11 +173,10 @@ export default {
 			} else {
 				this.handleSearch();
 			}
-		},
-	},
+		}
+	}
 };
 </script>
-
 
 <style lang="scss" scoped>
 .header {
@@ -152,6 +201,9 @@ export default {
 		}
 	}
 
+	.header__info {
+		display: flex;
+	}
 	&__search-container {
 		display: flex;
 		align-items: center;
@@ -168,7 +220,7 @@ export default {
 			padding-left: 40px;
 			font-weight: 700;
 			color: #fff;
-			display: none; 
+			display: none;
 
 			&:focus {
 				border: 2px solid #fff;
@@ -180,7 +232,7 @@ export default {
 			height: 40px;
 			background-color: #1f1f1f;
 			border-radius: 500px;
-			margin: 0px 40px 0 15px;
+			margin: 0px 5px 0 5px;
 			cursor: pointer;
 
 			&:hover {
@@ -189,18 +241,17 @@ export default {
 		}
 
 		&.show-search input {
-			display: block; 
+			display: block;
 		}
 
 		@media (min-width: 678px) {
 			input {
-				display: block; 
+				display: block;
 				width: 350px;
 			}
 		}
 	}
 
-	
 	&__profile {
 		width: 40px;
 		height: 40px;
@@ -218,7 +269,6 @@ export default {
 	}
 }
 
-
 .search-results {
 	position: absolute;
 	top: 60px;
@@ -234,42 +284,43 @@ export default {
 	border-radius: 10px;
 	height: 85%;
 	width: 90%;
-	flex-grow: 1; 
+	flex-grow: 1;
+
 	&::-webkit-scrollbar {
-		width: 10px;
+		width: 3px;
+
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background-color: #888; 
+		background-color: #888;
 		border-radius: 10px;
 	}
 
 	&::-webkit-scrollbar-thumb:hover {
-		background-color: #555; 
+		background-color: #555;
 	}
 
 	&::-webkit-scrollbar-track {
-		background-color: #222; 
+		background-color: #222;
 	}
 	@media (min-width: 678px) {
 		width: 75%;
 	}
 	.header__profile {
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	overflow: hidden;
-	cursor: pointer;
-	margin-right: 20px;
-	background: #1f1f1f;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		overflow: hidden;
+		cursor: pointer;
+		margin-right: 20px;
+		background: #1f1f1f;
 
-	img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
 	}
-}
-
 
 	ul {
 		list-style: none;
@@ -284,7 +335,7 @@ export default {
 	li {
 		display: flex;
 		align-items: center;
-		padding: 0 15px ;
+		padding: 0 15px;
 		width: 100%;
 		cursor: pointer;
 		transition: transform 0.3s ease;
@@ -320,42 +371,40 @@ export default {
 	}
 
 	.track-info {
-	position: sticky;
-	top: 0;
-	background-color: rgba(31, 31, 31, 0.8); 
-	background-image: url(''); 
-	background-size: cover; 
-	background-position: center; 
-	padding: 20px;
-	margin-bottom: 15px;
-	color: #fff;
-	text-align: center;
-	z-index: 1;
-	height: 300px;
+		position: sticky;
+		top: 0;
+		background-color: rgba(31, 31, 31, 0.8);
+		background-image: url('');
+		background-size: cover;
+		background-position: center;
+		padding: 20px;
+		margin-bottom: 15px;
+		color: #fff;
+		text-align: center;
+		z-index: 1;
+		height: 300px;
 
-	h2 {
-		margin: 80px  0 0px;
-		font-size: 4.5rem;
-		font-weight: 900;
-		font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-		display: flex;
-		justify-content: start;
-		
+		h2 {
+			margin: 80px 0 0px;
+			font-size: 4.5rem;
+			font-weight: 900;
+			font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+			display: flex;
+			justify-content: start;
+		}
+
+		p {
+			margin: 5px 0;
+			font-size: 18px;
+			display: flex;
+			justify-content: start;
+			font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+		}
+
+		img {
+			display: none;
+		}
 	}
-
-	p {
-		margin: 5px 0;
-		font-size: 18px;
-		display: flex;
-		justify-content: start;
-		font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-	}
-
-	img {
-		display: none;
-	}
-}
-
 
 	.close-btn {
 		background: transparent;
@@ -371,11 +420,10 @@ export default {
 		top: 70px;
 		z-index: 30000;
 		transition: all 1s ease;
-		&:hover{
+		&:hover {
 			background: #ff0000;
 			color: #fff;
 		}
 	}
-	
 }
 </style>
