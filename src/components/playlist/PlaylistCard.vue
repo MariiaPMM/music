@@ -88,8 +88,10 @@
 				</div>
 			</div>
 		</div>
+		<TheFooter/>
 	</div>
 	<TrackPlay :selectedTrack="selectedTrack" />
+	
 </template>
 
 <script>
@@ -99,11 +101,13 @@ import { usePlaylistStore } from '@/store/playlistStore';
 import { fetchAccessToken } from '@/auth';
 
 import TrackPlay from '@/components/track/TrackPlay.vue';
+import TheFooter from '../TheFooter.vue';
 
 export default {
 	name: 'PlaylistCard',
 	components: {
-		TrackPlay // Регіструємо компонент
+		TrackPlay,
+		TheFooter
 	},
 
 	setup() {
@@ -268,14 +272,13 @@ height: 150px;
 .playlist {
 	background: #121212;
 	color: aliceblue;
-	height: 100vh;
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
 	position: relative;
-	padding: 0 15px 150px;
+	padding: 0 15px 100px;
 	box-sizing: border-box;
-	margin: 55px 20px 0px;
+	margin: 55px 20px 0;
 	border-radius: 10px;
 	a {
 		font-weight: 700;

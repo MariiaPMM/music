@@ -4,10 +4,7 @@
 			v-if="artists.length > 0"
 			:artist="artists[0]"
 		/>
-
-		<!-- TrackPlay має показувати тільки один трек -->
 		<TrackPlay @select-track="selectTrack" />
-		<TheFooter/>
 	</div>
 </template>
 
@@ -18,12 +15,12 @@ import { useTrackStore } from '@/store/trackStore';
 import { usePlaylistStore } from '@/store/playlistStore';
 import TrackPlay from '@/components/track/TrackPlay.vue';
 import PlaylistCard from '@/components/playlist/PlaylistCard.vue';
+// import TheFooter from '../components/TheFooter.vue';
 
 export default defineComponent({
 	name: 'HomePage',
 	components: {
-		PlaylistCard,
-		TrackPlay
+		PlaylistCard
 	},
 	setup() {
 		const artistsStore = useArtistsStore();
@@ -56,6 +53,7 @@ export default defineComponent({
 	color: aliceblue;
 	background: #121212;
 	overflow: hidden;
+	height: 100vh;
 	flex: 1 1 auto;
 	flex-direction: column;
 	width: 100%;

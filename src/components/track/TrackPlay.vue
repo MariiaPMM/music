@@ -18,7 +18,7 @@
 					class="previous"
 				>
 					<img
-						src="./track-img/previous.svg"
+						src="./track-img/back.png"
 						alt="Previous"
 					/>
 				</button>
@@ -37,7 +37,7 @@
 				>
 					<img
 						src="./track-img/next.png"
-						alt="Next"
+						alt="Next" class="next"
 					/>
 				</button>
 			</div>
@@ -195,6 +195,7 @@ p {
     margin: 0px 0;
   }
 }
+
 .controls {
 	display: flex;
 	justify-content: center;
