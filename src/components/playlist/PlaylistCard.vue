@@ -11,15 +11,8 @@
 		</div>
 
 		<!-- Секція з інформацією про артиста -->
-		<div
-			v-if="selectedArtist"
-			class="artist-info"
-		>
-			<img
-				:src="selectedArtist.imageUrl"
-				alt="Artist Cover"
-				class="artist-info__image"
-			/>
+		<div v-if="selectedArtist" class="artist-info">
+			<img :src="selectedArtist.imageUrl" alt="Artist Cover" class="artist-info__image" />
 			<h2 class="artist-info__name">{{ selectedArtist.name }}</h2>
 		</div>
 
@@ -28,21 +21,14 @@
 			<div class="artists-section">
 				<div v-if="artistsLoading">Завантаження артистів...</div>
 				<div v-else-if="artistsError">{{ artistsError }}</div>
-				<div
-					class="artists-list"
-					v-else
-				>
+				<div class="artists-list" v-else>
 					<div
 						class="artist-card"
 						v-for="artist in limitedArtists"
 						:key="artist.id"
 						@click="selectArtist(artist)"
 					>
-						<img
-							:src="artist.imageUrl"
-							alt="Artist Cover"
-							class="artist__image"
-						/>
+						<img :src="artist.imageUrl" alt="Artist Cover" class="artist__image" />
 						<p class="artist__name">{{ artist.name }}</p>
 					</div>
 				</div>
@@ -73,25 +59,37 @@
 							class="playlist-card"
 							v-for="playlist in playlists"
 							:key="playlist.id"
+							@click="selectPlaylist(playlist)"
 						>
-							<img
-								:src="playlist.imageUrl"
-								alt="Playlist Cover"
-								class="playlist__image"
-							/>
+							<img :src="playlist.imageUrl" alt="Playlist Cover" class="playlist__image" />
 							<p class="playlist__name">{{ playlist.name }}</p>
-							<p class="playlist__artists">
+							<p class="artist-info__name">
 								{{ playlist.artists.slice(0, 2).join(', ') }}
 							</p>
 						</div>
 					</div>
 				</div>
 			</div>
+
+			<!-- Додаткова інформація про плейлист -->
+			<div v-if="selectedPlaylist" class="playlist-info">
+				<h3 class="playlist-info__name">{{ selectedPlaylist.name }}</h3>
+				<img :src="selectedPlaylist.imageUrl" alt="Playlist Cover" class="playlist-info__image" />
+				<p> {{ selectedPlaylist.description }}</p>
+				<p>{{ selectedPlaylist.trackCount }}</p>
+
+				<!-- Відображення треків плейлиста -->
+				<h4></h4>
+				<ul>
+					<li v-for="track in selectedPlaylist.tracks" :key="track.id">
+						{{ track.name }} - {{ track.artistName }}
+					</li>
+				</ul>
+			</div>
 		</div>
-		<TheFooter/>
+		<TheFooter />
 	</div>
 	<TrackPlay :selectedTrack="selectedTrack" />
-	
 </template>
 
 <script>
@@ -114,11 +112,20 @@ export default {
 		const artistsStore = useArtistsStore();
 		const playlistStore = usePlaylistStore();
 
+		const checkTracksInSelectedPlaylist = () => {
+  if (selectedPlaylist.value && selectedPlaylist.value.tracks && selectedPlaylist.value.tracks.total > 0) {
+    console.log(`В плейлісті "${selectedPlaylist.value.name}" є ${selectedPlaylist.value.tracks.total} трек(ів).`);
+  } else {
+    console.log(`В плейлісті "${selectedPlaylist.value.name}" немає треків.`);
+  }
+};
+
+
+
 		const artists = computed(() => artistsStore.artists);
 		const tracks = computed(() => playlistStore.tracks);
 		const playlists = computed(() => playlistStore.playlists);
 		const selectedTrack = computed(() => playlistStore.tracks[playlistStore.currentTrackIndex]);
-		
 
 		const artistsLoading = ref(true);
 		const artistsError = ref(null);
@@ -129,7 +136,7 @@ export default {
 
 		const isMusicActive = ref(false);
 		const selectedArtist = ref(null);
-		const selectedArtistSongs = ref([]);
+		const selectedPlaylist = ref(null);
 
 		const toggleMusic = () => {
 			isMusicActive.value = !isMusicActive.value;
@@ -199,9 +206,16 @@ export default {
 
 		const selectArtist = artist => {
 			selectedArtist.value = artist;
-			selectedArtistSongs.value = [];
+			selectedPlaylist.value = null; 
 			loadArtistSongs(artist.id);
 		};
+
+		const selectPlaylist = playlist => {
+			selectedPlaylist.value = playlist; 
+			selectedArtist.value = null;
+			checkTracksInSelectedPlaylist();
+		};
+		
 
 		const playTrack = track => {
 			playlistStore.currentTrackIndex = tracks.value.indexOf(track);
@@ -227,14 +241,18 @@ export default {
 			toggleMusic,
 			limitedArtists,
 			selectArtist,
+			selectPlaylist,
 			selectedArtist,
-			selectedArtistSongs,
+			selectedPlaylist,
 			selectedTrack,
 			playTrack,
 		};
 	}
 };
 </script>
+
+
+
 
 <style scoped>
 .artist-info {
@@ -325,7 +343,7 @@ height: 150px;
 }
 
 .playlist::-webkit-scrollbar-thumb {
-	background-color: #888;
+	background-color: #888888a2;
 	border-radius: 5px;
 }
 
@@ -341,6 +359,23 @@ height: 150px;
 	flex-grow: 1;
 	padding: 20px 0;
 }
+
+.playlist-info__image {
+	object-fit: cover;
+	width: 100%;
+	height: 250px;
+	margin: 0 0 100px
+}
+
+.playlist-info__name {
+	font-weight: 900;
+	font-size: 32px;
+	margin: 0 0 20px;
+	@media (min-width: 678px) {
+		font-size: 64px;
+	}
+}
+
 
 .artists-section {
 	margin-bottom: 20px;
@@ -361,6 +396,10 @@ height: 150px;
 	display: flex;
 	align-items: center;
 	justify-content: start;
+	&:hover{
+		background-color: #f5f5f50e;
+		cursor: pointer;
+	}
 }
 
 .artist__image {
@@ -400,6 +439,10 @@ height: 150px;
 	text-align: start;
 	min-width: 100px;
 	flex: 0 0 auto;
+	&:hover{
+		cursor: pointer;
+		background-color: #171717a8;
+	}
 }
 
 .track__image {
@@ -449,6 +492,10 @@ height: 150px;
 	border-radius: 4px;
 	text-align: center;
 	padding: 10px;
+	&:hover{
+		cursor: pointer;
+		background-color: #171717a8;
+	}
 }
 
 .playlist__image {

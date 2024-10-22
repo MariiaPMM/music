@@ -126,7 +126,7 @@ export default defineComponent({
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background-color: #888; 
+		background-color: #888888a2; 
 		border-radius: 10px; 
 	}
 

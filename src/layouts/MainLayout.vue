@@ -1,5 +1,6 @@
 <template>
 	<div class="page">
+	 
 		<TheNavigation :is-open="isNavOpen" />
 		<div class="page__content">
 			<TheHeader @on-toggle="isNavOpen = !isNavOpen" />
@@ -14,6 +15,7 @@
 				</RouterView>
 			</main>
 			<InitializeToken @token-initialized="onTokenInitialized" />
+			<Loader v-if="isLoading" :duration="12000" />
 			<HomePage />
 			<TheFooter />
 		</div>
@@ -27,6 +29,7 @@ import TheFooter from '@/components/TheFooter.vue';
 import { useTrackStore } from '@/store/trackStore';
 import InitializeToken from '@/components/InitializeToken.vue';
 import HomePage from '../pages/HomePage.vue';
+import Loader from '@/components/Loader.vue'; // Додаємо компонент лоадера
 
 export default {
 	name: 'MainLayout',
@@ -35,15 +38,15 @@ export default {
 		TheHeader,
 		TheFooter,
 		InitializeToken,
-		HomePage
+		HomePage,
+		Loader
 	},
 	setup() {
 		const trackStore = useTrackStore();
 
-		// Функція для виклику треку після ініціалізації токена
 		const onTokenInitialized = async () => {
 			try {
-				await trackStore.fetchTrack('11dFghVXANMlKmJXsNCbNl'); // Замініть на потрібний ID
+				await trackStore.fetchTrack('11dFghVXANMlKmJXsNCbNl');
 			} catch (error) {
 				console.error('Error fetching track:', error);
 			}
@@ -55,8 +58,15 @@ export default {
 	},
 	data() {
 		return {
-			isNavOpen: false
+			isNavOpen: false,
+			isLoading: true // Додаємо змінну для контролю лоадера
 		};
+	},
+	mounted() {
+		// Симуляція затримки для лоадера
+		setTimeout(() => {
+			this.isLoading = false;
+		}, 3000); // Лоадер буде активним 3 секунди
 	}
 };
 </script>
@@ -70,17 +80,17 @@ export default {
 	overflow: hidden;
 	padding: 5px;
 	width: 100%;
+	position: relative; // Важливо для лоадера
+
 	@media (min-width: 678px) {
 		background: black;
 	}
 	&__content {
 		display: flex;
 		flex-direction: column;
-		// width: 100%;
 		height: 100%;
 		overflow: hidden;
 	}
-
 	&__main {
 		flex: 1 1 auto;
 	}
@@ -89,7 +99,6 @@ export default {
 .fade-leave-active {
 	transition: opacity 0.3s;
 }
-
 .fade-enter-from,
 .fade-leave-to {
 	opacity: 0;
